@@ -23,3 +23,13 @@ app.use("/api/auth", authRoutes);
 app.listen(4000, () => {
   console.log("SERVER RUNNING ON 4000!");
 });
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message;
+  res.status(statusCode).json({
+    success: false,
+    statusCode,
+    message,
+  });
+});
