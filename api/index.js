@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.route.js";
 import authRoutes from "./routes/auth.route.js";
+import authPosts from "./routes/post.route.js";
 dotenv.config();
 const app = express();
 import cookieParser from "cookie-parser";
@@ -21,6 +22,7 @@ mongoose
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/post", authPosts);
 
 app.listen(4000, () => {
   console.log("SERVER RUNNING ON 4000!");
