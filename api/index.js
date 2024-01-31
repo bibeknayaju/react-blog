@@ -8,6 +8,7 @@ import postRoutes from "./routes/post.route.js";
 dotenv.config();
 const app = express();
 import cookieParser from "cookie-parser";
+import path from "path";
 
 app.use(express.json());
 app.use(cookieParser());
@@ -20,6 +21,7 @@ mongoose
   .catch((error) => {
     console.log("ERROR in connection", error);
   });
+const ___dirname = path.resolve();
 
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
@@ -30,6 +32,10 @@ app.listen(4000, () => {
   console.log("SERVER RUNNING ON 4000!");
 });
 
+app.use(express.static(path.join(___dirname, "/client/dist")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(___dirname, "client", "dist", "index.html"));
+});
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message;

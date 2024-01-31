@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Button, Spinner } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -64,7 +65,7 @@ export default function PostPage() {
           {post && post.title}
         </h1>
         <Link
-          to={`/search?category=${post && post.category}`}
+          // to={`/search?category=${post && post.category}`}
           className="self-center mt-5">
           <Button color="gray" pill size="xs">
             {post && post.category}
