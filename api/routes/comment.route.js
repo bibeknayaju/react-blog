@@ -3,6 +3,7 @@ import express from "express";
 const router = express.Router();
 import {
   createComment,
+  deleteComment,
   editComment,
   getPostComments,
   likeComment,
@@ -13,5 +14,6 @@ router.post("/create-comment", verifyToken, createComment);
 router.get("/get-comments/:postId", getPostComments);
 router.put("/like-comment/:commentId", verifyToken, likeComment);
 router.put("/edit-comment/:commentId", verifyToken, editComment);
+router.delete("/delete-comment/:commentId", verifyToken, deleteComment);
 
 export default router;
