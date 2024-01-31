@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import moment from "moment";
 import { FaThumbsUp } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { Button, Textarea } from "flowbite-react";
 
-export default function Comment({ comment, onLikeFunction }) {
+export default function Comment({ comment, onLikeFunction, onEdit }) {
   const { currentUser } = useSelector((state) => state.user);
   const [user, setUser] = useState({});
+  const [editedContent, setEditedContent] = useState(comment.content);
+  const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -21,6 +24,29 @@ export default function Comment({ comment, onLikeFunction }) {
     };
     getUser();
   }, [comment]);
+  const handleEditButton = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`/api/comment/edit-comment/${comment._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: editedContent,
+        }),
+      });
+      if (res.ok) {
+        setIsEditing(false);
+        onEdit(comment, editedContent);
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="flex p-4 border-b dark:border-gray-600 text-sm">
       <div className="flex-shrink-0 mr-3">
@@ -40,26 +66,65 @@ export default function Comment({ comment, onLikeFunction }) {
           </span>
         </div>
 
-        <p className="text-gray-500 pb-2">{comment?.content}</p>
+        {isEditing ? (
+          <>
+            <Textarea
+              className="mb-2"
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+            />
+            <div className="flex gap-2 justify-end text-sm">
+              <Button
+                onClick={handleSave}
+                type="button"
+                size="sm"
+                gradientDuoTone={"purpleToBlue"}>
+                Save
+              </Button>
+              <Button
+                outline
+                onClick={() => setIsEditing(false)}
+                type="button"
+                size="sm"
+                gradientDuoTone={"purpleToBlue"}>
+                Cancel
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            {" "}
+            <p className="text-gray-500 pb-2">{comment?.content}</p>
+            <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
+              <button
+                type="button"
+                onClick={() => onLikeFunction(comment._id)}
+                className={`text-gray-400 hover:text-blue-500  ${
+                  currentUser &&
+                  comment.likes.includes(currentUser._id) &&
+                  "!text-blue-500"
+                } `}>
+                <FaThumbsUp className="text-sm" />
+              </button>
+              <p className="text-gray-400">
+                {comment.numberOfLikes > 0 &&
+                  comment.numberOfLikes +
+                    " " +
+                    (comment.numberOfLikes === 1 ? "like" : "likes")}
+              </p>
 
-        <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
-          <button
-            type="button"
-            onClick={() => onLikeFunction(comment._id)}
-            className={`text-gray-400 hover:text-blue-500  ${
-              currentUser &&
-              comment.likes.includes(currentUser._id) &&
-              "!text-blue-500"
-            } `}>
-            <FaThumbsUp className="text-sm" />
-          </button>
-          <p className="text-gray-400">
-            {comment.numberOfLikes > 0 &&
-              comment.numberOfLikes +
-                " " +
-                (comment.numberOfLikes === 1 ? "like" : "likes")}
-          </p>
-        </div>
+              {currentUser &&
+                (currentUser._id === comment.userId || currentUser.isAdmin) && (
+                  <button
+                    type="button"
+                    className="text-gray-400 hover:text-blue-500"
+                    onClick={handleEditButton}>
+                    Edit
+                  </button>
+                )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
